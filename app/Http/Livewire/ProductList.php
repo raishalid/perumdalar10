@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Ecommerce\ProductBrand;
 use App\Models\Ecommerce\ProductParent;
 use App\Models\Ecommerce\ProductCategory;
+use App\Livewire\OrderComponent;
 use Illuminate\Support\Collection;
 
 
@@ -37,34 +38,18 @@ class ProductList extends Component
     
     public $inputA = [];
 
-// public function decrementInputA()
-// {
-//     if (isset($this->inputA) && $this->inputA > 0) {
-//         $this->inputA--;
-//     }
-// }
-
-// public function incrementInputA()
-// {
-//     if (!isset($this->inputA)) {
-//         $this->inputA = 0;
-//     }
-//     $this->inputA++;
-// }
 
 public function processCart($productId,$inputA)
 {
     
-    // $this->validate();
-
 
      $user = Auth::user();
      $userId = $user->id;
      $deposit = $user->agent->deposit;
      $product = Product::find($productId);
-     if (!$user || !$product || $inputA <= 0) {
-        return ;
-    }
+    //  if (!$user || !$product || $inputA <= 0) {
+    //     return ;
+    // }
 
      $productName = $product->name;
      $productDiscount = $product->discount;
@@ -72,10 +57,39 @@ public function processCart($productId,$inputA)
      $productPackage=$product->package;
      $productPrice=$product->price;
      $hasil = $productPrice * $inputA;
-      dd($productId, $inputA,$productPrice, $hasil, $userId,$productName,$deposit,$productDiscount,$productCost,$productPackage);
-    //  dd($userId, $deposit,$productName,$productId, $result , $this->inputA, $productDiscount,$productPackage, $productCost);
-     $this->inputA[$productId] = 0;
-   reset($this->inputA);
+    //   dd($productId, $inputA,$productPrice, $hasil, $userId,$productName,$deposit,$productDiscount,$productCost,$productPackage);
+    $existingOrder = TempOrder::where('user_id', $user->id)
+    ->where('product_id', $product->id)
+    ->first();
+
+if ($existingOrder) {
+    // Jika TempOrder sudah ada, tambahkan kuantitas baru
+    $inputA += $existingOrder->quantity;
+    $hasil+= $existingOrder->total_price;
+}
+
+
+$tempOrder = TempOrder::updateOrCreate(
+    ['user_id' => $userId, 
+    'product_id' => $product->id],
+    [
+        'order_number' => 'ORD' . strtoupper(Str::random(10)),
+        'price' => $productPrice,
+        'quantity' => $inputA,
+        'total_price' => $hasil,
+    ]
+
+//proses ki method di komponen OrderComponent.
+
+
+
+);
+
+$this->inputA[$productId] = 0;
+reset($this->inputA);
+// $this->call('OrderComponent@segarkan');
+$this->emit('segarkan');
+
 }
    
     //ini cara mengambil kuantity hasil perhitungan di view
@@ -133,16 +147,16 @@ public function processCart($productId,$inputA)
         if ($user && $user->agent) {
             $deposit = $user->agent->deposit;
         } else {
-            // Handle kasus ketika user tidak memiliki agent atau user tidak ditemukan
+           
         }
 
         $products = $query->with('productBrand', 'productBrand.vendor', 'productCategory', 'productCategory.productParent')->paginate(5);
         $brands = ProductBrand::all();
         $categories = ProductCategory::all();
-        $parents = ProductParent::all(); // Ganti ini dengan model yang benar
+        $parents = ProductParent::all(); 
         $vendors = Vendor::all();
 
-        $tempOrders = TempOrder::where('user_id', Auth::id())->get();
+
 
 
         return view('livewire.product-list', ['products' => $products, 'brands' => $brands,
@@ -150,51 +164,14 @@ public function processCart($productId,$inputA)
         'parents' => $parents,
         'vendors' => $vendors,
         'deposit' => $deposit,
-        'tempOrders' => $tempOrders,             ]);
+            
+     ]);
+
+     
        
     }
     
-    // public function addToCart($productId, $quantity)
-    // {
-    //     $quantity = (int)$quantity;
-    
-    //     $user = Auth::user();
-    //     $product = Product::find($productId);
-    
-    //     if (!$user || !$product || $quantity <= 0) {
-    //         return;
-    //     }
-    
-    //     $price = $product->price;
-    
-    //     // Cari TempOrder yang sudah ada
-    //     $existingOrder = TempOrder::where('user_id', $user->id)
-    //         ->where('product_id', $product->id)
-    //         ->first();
-    
-    //     if ($existingOrder) {
-    //         // Jika TempOrder sudah ada, tambahkan kuantitas baru
-    //         $quantity += $existingOrder->quantity;
-    //     }
-    
-    //     $totalPrice = $quantity * $price;
-    //     // dd($totalPrice);
-    
-    //     if ($user->agent->deposit < $totalPrice) {
-    //         return;
-    //     }
-    
-    //     // Buat atau perbarui TempOrder
-    //     $tempOrder = TempOrder::updateOrCreate(
-    //         ['user_id' => $user->id, 'product_id' => $product->id],
-    //         [
-    //             'order_number' => 'ORD' . strtoupper(Str::random(10)),
-    //             'price' => $price,
-    //             'quantity' => $quantity,
-    //             'total_price' => $totalPrice,
-    //         ]
-    //     );
-    // }
+   
     public function addToCart($productId, $quantity)
     {
         // dd($productId, $quantity);
