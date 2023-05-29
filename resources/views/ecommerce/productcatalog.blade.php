@@ -3,6 +3,6 @@
         @livewire('product-list')
 
     </div>
-
+    <p>test</p>
 
 </x-app-layout>
