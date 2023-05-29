@@ -1,0 +1,28 @@
+.contberita {
+    width: 100vw;
+    height: auto;
+    /* background-color: aqua; */
+}
+
+.daftarberita {
+    width: 75%;
+    padding-left: 5rem;
+    padding-right: 5rem;
+    margin-bottom: 1rem;
+    /* background-color: brown; */
+}
+.daftarberita img {
+    width: 240px;
+}
+
+.judulberitatunggal {
+    height: 6rem;
+    width: 100vw;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    text-align: center;
+    font-family: "poppins", sans-serif;
+}
+.isiberitatunggal {
+    font-family: "poppins", sans-serif;
+}
