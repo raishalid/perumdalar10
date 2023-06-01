@@ -3,28 +3,28 @@
 use App\Models\Sector;
 use App\Models\Product;
 use App\Models\Service;
+use App\Http\Livewire\Agents;
 use App\Models\SectorCategory;
 use App\Models\ProductCategory;
-use Illuminate\Support\Facades\Route;
+use App\Http\Livewire\SalesOrder;
+use Spatie\Permission\Models\Role;
+use App\Http\Livewire\SalesDeposit;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Livewire\ContohKomponen;
+use Illuminate\Support\Facades\Route;
+use Spatie\Permission\Models\Permission;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\SectorController;
-use App\Http\Controllers\ProductController;
+use App\Http\Livewire\SalesOrderComponent;
+
+
+
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\BelajarPermissionController;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use App\Http\Livewire\SalesDepositComponent;
 
-use App\Http\Controllers\AdminUserController;
 
-// belajar permission
-use App\Http\Middleware\BelajarMiddleware;
-use App\Http\Controllers\BelajarController;
-use App\Http\Livewire\ContohKomponen;
-use App\Http\Livewire\Agents;
-// Route::get('/contoh', ContohKomponen::class);
+
 
 
 Route::get('/', function () {
@@ -105,5 +105,9 @@ Route::get('/productcatalog', function () {
     return view('ecommerce.productcatalog');
 })->middleware(['auth', 'verified'])->name('productcatalog');
 
+
+Route::get('/salesdepositcomponent', SalesDepositComponent::class);
+
+Route::get('/salesorder', SalesOrderComponent::class);
 
 require __DIR__ . '/auth.php';

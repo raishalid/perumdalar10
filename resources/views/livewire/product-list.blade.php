@@ -48,14 +48,28 @@
                                     {{-- <p>Harga Total: {{ $product->price * $inputA[$product->id] }}</p> --}}
                                 </div>
                                 <button class="btn btn-outline-primary btn-sm"
-                                    wire:click="processCart({{ $product->id }}, '{{ $inputA[$product->id] }}')">Order
+                                    wire:click="processCart({{ $product->id }}, '{{ $inputA[$product->id] }}')">Tambah
+                                    ke Keranjang
                                 </button>
+
 
                             </div>
                         </div>
 
                     </div>
                 @endforeach
+                @if (session()->has('message'))
+                    <div class="alert alert-secondary alert-dismissible fade show" role="alert"
+                        style="color:aliceblue; position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%); width:20rem">
+                        <span class="alert-icon" style="width:2rem;height:2rem"><i class="ni ni-like-2"></i></span>
+                        <span class="alert-text"><strong>Info!</strong>
+                            {{ session('message') }}</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+                            style="width:2rem;height:2rem; font-size:2rem">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
                 <div class="text-start" style="width:100%; padding-right:10rem">
 
                     {{ $products->links() }}
@@ -64,13 +78,12 @@
             </div>
         </div>
     </div>
+</div>
 
 
 
 
-
-
-    {{-- <p class="card-text">{{ $product->pict2 }}</p>
+{{-- <p class="card-text">{{ $product->pict2 }}</p>
 // <p class="card-text">SKU: {{ $product->sku }}</p>
 // <p class="card-text">Price: {{ $product->price }}</p>
 // <p class="card-text">Cost: {{ $product->cost }}</p>

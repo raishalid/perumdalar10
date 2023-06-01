@@ -6,6 +6,7 @@ namespace App\Models;
 use App\Models\Agent;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Ecommerce\SalesOrder;
+use App\Models\Ecommerce\SalesDeposit;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -52,6 +53,10 @@ class User extends Authenticatable
     public function tempOrder()
     {
         return $this->hasMany(User::class,'user_id');
+    }
+    public function salesDeposit()
+    {
+        return $this->hasMany(SalesDeposit::class,'user_id');
     }
 
 }

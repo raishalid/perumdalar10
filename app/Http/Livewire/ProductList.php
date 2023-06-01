@@ -5,21 +5,25 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use Illuminate\Support\Str;
 use Livewire\WithPagination;
+use App\Livewire\OrderComponent;
 use App\Models\Ecommerce\Vendor;
 use App\Models\Ecommerce\Product;
+use Illuminate\Support\Collection;
 use App\Models\Ecommerce\TempOrder;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Ecommerce\ProductBrand;
 use App\Models\Ecommerce\ProductParent;
+use Illuminate\Support\Facades\Session;
 use App\Models\Ecommerce\ProductCategory;
-use App\Livewire\OrderComponent;
-use Illuminate\Support\Collection;
+
+
 
 
 class ProductList extends Component
 {
 
     use WithPagination;
+    protected $paginationTheme = 'bootstrap';
 
     public $selectedCategory;
     public $selectedBrand;
@@ -27,85 +31,61 @@ class ProductList extends Component
     public $selectedVendor;
     public $searchTerm;
     public $showActiveOnly = false;
-
-
-
-    // public $inputA;
-    // A = Qty input dari view
     protected $rules = [ 'inputA' => 'required|numeric',];
-    
-    
-    
     public $inputA = [];
-
-
-public function processCart($productId,$inputA)
-{
+    public $message;
     
+    public function processCart($productId,$inputA)
+    {
+     
+                $user = Auth::user();
+                $userId = $user->id;
+                $product = Product::find($productId);
+                $productName = $product->name;
+                $productDiscount = $product->discount;
+                $productCost=$product->cost;
+                $productPackage=$product->package;
+                $productPrice=$product->price;
+                        if (!$user || !$product || $inputA <= 0) {
+                            return;
+                        }
+                     $hasil = $productPrice * $inputA;
+ 
+                     $existingOrder = TempOrder::where('user_id', $user->id)
+                    ->where('product_id', $product->id)
+                    ->first();
 
-     $user = Auth::user();
-     $userId = $user->id;
-     $deposit = $user->agent->deposit;
-     $product = Product::find($productId);
-    //  if (!$user || !$product || $inputA <= 0) {
-    //     return ;
-    // }
+                    if ($existingOrder) {
+                        $inputA += $existingOrder->quantity;
+                        $hasil+= $existingOrder->total_price;
+                    }
 
-     $productName = $product->name;
-     $productDiscount = $product->discount;
-     $productCost=$product->cost;
-     $productPackage=$product->package;
-     $productPrice=$product->price;
-     $hasil = $productPrice * $inputA;
-    //   dd($productId, $inputA,$productPrice, $hasil, $userId,$productName,$deposit,$productDiscount,$productCost,$productPackage);
-    $existingOrder = TempOrder::where('user_id', $user->id)
-    ->where('product_id', $product->id)
-    ->first();
+                $tempOrder = TempOrder::updateOrCreate(
+                ['user_id' => $userId, 
+                'product_id' => $product->id],
+                [
+                    'order_number' => 'ORD' . $userId, //menghasilkan order number yang berbeda perproduk ?? goblok
+                    'price' => $productPrice,
+                    'quantity' => $inputA,
+                    'total_price' => $hasil,
+                ]
 
-if ($existingOrder) {
-    // Jika TempOrder sudah ada, tambahkan kuantitas baru
-    $inputA += $existingOrder->quantity;
-    $hasil+= $existingOrder->total_price;
-}
+            
 
-
-$tempOrder = TempOrder::updateOrCreate(
-    ['user_id' => $userId, 
-    'product_id' => $product->id],
-    [
-        'order_number' => 'ORD' . strtoupper(Str::random(10)),
-        'price' => $productPrice,
-        'quantity' => $inputA,
-        'total_price' => $hasil,
-    ]
-
-//proses ki method di komponen OrderComponent.
+     );
 
 
 
-);
-
-$this->inputA[$productId] = 0;
-reset($this->inputA);
-// $this->call('OrderComponent@segarkan');
-$this->emit('segarkan');
+                $this->inputA[$productId] = 0;
+                reset($this->inputA);
+                // $this->call('OrderComponent@segarkan');
+                $this->emit('segarkan');
 
 }
    
-    //ini cara mengambil kuantity hasil perhitungan di view
+   
 
-    public function mount()
-    {
-        // $this->listeners = ['refreshComponent' => '$refresh'];
-        $this->listeners = ['refreshComponent' => '$refresh', 'addToCartClicked' => 'addToCart'];
-       
-    }
-    
-    public function hydrate()
-    {
-        // $this->listeners = ['refreshComponent' => '$refresh'];
-        $this->listeners = ['refreshComponent' => '$refresh', 'addToCartClicked' => 'addToCart'];
-    }
+
 
     public function render()
     {
@@ -172,47 +152,6 @@ $this->emit('segarkan');
     }
     
    
-    public function addToCart($productId, $quantity)
-    {
-        // dd($productId, $quantity);
-        $quantity = (int)$quantity;
-    
-        $user = Auth::user();
-        $product = Product::find($productId);
-    
-        if (!$user || !$product || $quantity <= 0) {
-            return;
-        }
-    
-        $price = $product->price;
-    
-        // Cari TempOrder yang sudah ada
-        $existingOrder = TempOrder::where('user_id', $user->id)
-            ->where('product_id', $product->id)
-            ->first();
-    
-        if ($existingOrder) {
-            // Jika TempOrder sudah ada, tambahkan kuantitas baru
-            $quantity += $existingOrder->quantity;
-        }
-    
-        $totalPrice = $quantity * $price;
-    
-        if ($user->agent->deposit < $totalPrice) {
-            return;
-        }
-    
-        // Buat atau perbarui TempOrder
-        $tempOrder = TempOrder::updateOrCreate(
-            ['user_id' => $user->id, 'product_id' => $product->id],
-            [
-                'order_number' => 'ORD' . strtoupper(Str::random(10)),
-                'price' => $price,
-                'quantity' => $quantity,
-                'total_price' => $totalPrice,
-            ]
-        );
-    }
 
 
 

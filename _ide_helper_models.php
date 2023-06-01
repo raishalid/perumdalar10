@@ -160,26 +160,30 @@ namespace App\Models\Ecommerce{
  * App\Models\Ecommerce\ItemOrder
  *
  * @property int $id
- * @property int $order_id
+ * @property int|null $user_id
+ * @property string|null $order_number
  * @property int $product_id
  * @property string|null $price
  * @property string|null $cost
  * @property string|null $quantity
+ * @property string|null $total_price
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  * @property-read \App\Models\Ecommerce\Product $product
- * @property-read \App\Models\Ecommerce\SalesOrder $salesOrder
+ * @property-read \App\Models\Ecommerce\SalesOrder|null $salesOrder
  * @method static \Illuminate\Database\Eloquent\Builder|ItemOrder newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ItemOrder newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ItemOrder query()
  * @method static \Illuminate\Database\Eloquent\Builder|ItemOrder whereCost($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ItemOrder whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ItemOrder whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ItemOrder whereOrderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ItemOrder whereOrderNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ItemOrder wherePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ItemOrder whereProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ItemOrder whereQuantity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ItemOrder whereTotalPrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ItemOrder whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ItemOrder whereUserId($value)
  */
 	class ItemOrder extends \Eloquent {}
 }
@@ -197,8 +201,10 @@ namespace App\Models\Ecommerce{
  * @property int|null $brand_id
  * @property string|null $price
  * @property string|null $cost
+ * @property string|null $discount
  * @property string|null $quantity
  * @property string|null $weight
+ * @property string|null $package
  * @property string|null $pict1
  * @property string|null $pict2
  * @property int|null $active
@@ -220,8 +226,10 @@ namespace App\Models\Ecommerce{
  * @method static \Illuminate\Database\Eloquent\Builder|Product whereCost($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Product whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Product whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereDiscount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Product whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Product whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product wherePackage($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Product wherePict1($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Product wherePict2($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Product wherePrice($value)
@@ -316,23 +324,24 @@ namespace App\Models\Ecommerce{
  *
  * @property int $id
  * @property int $user_id
- * @property string $tr_at
- * @property int|null $type_id
- * @property string|null $tr_amount
+ * @property string $deposit_at
+ * @property string|null $status
+ * @property string|null $deposit_amount
  * @property string|null $remarks
  * @property string|null $verified_at
  * @property string|null $verified_by
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|SalesDeposit newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SalesDeposit newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SalesDeposit query()
  * @method static \Illuminate\Database\Eloquent\Builder|SalesDeposit whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesDeposit whereDepositAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesDeposit whereDepositAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesDeposit whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesDeposit whereRemarks($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SalesDeposit whereTrAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SalesDeposit whereTrAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SalesDeposit whereTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesDeposit whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesDeposit whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesDeposit whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesDeposit whereVerifiedAt($value)
@@ -348,6 +357,7 @@ namespace App\Models\Ecommerce{
  * @property int $id
  * @property int $user_id
  * @property string|null $order_number
+ * @property string|null $total_transaction
  * @property string $order_at
  * @property string|null $status
  * @property string|null $remark
@@ -369,6 +379,7 @@ namespace App\Models\Ecommerce{
  * @method static \Illuminate\Database\Eloquent\Builder|SalesOrder whereOrderNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesOrder whereRemark($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesOrder whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesOrder whereTotalTransaction($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesOrder whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesOrder whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesOrder whereVerifiedAt($value)
@@ -381,10 +392,30 @@ namespace App\Models\Ecommerce{
 /**
  * App\Models\Ecommerce\TempOrder
  *
+ * @property int $id
+ * @property int|null $user_id
+ * @property string $order_number
+ * @property int $product_id
+ * @property string|null $price
+ * @property string|null $cost
+ * @property string|null $quantity
+ * @property string|null $total_price
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
  * @property-read \App\Models\Ecommerce\Product $product
  * @method static \Illuminate\Database\Eloquent\Builder|TempOrder newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TempOrder newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TempOrder query()
+ * @method static \Illuminate\Database\Eloquent\Builder|TempOrder whereCost($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TempOrder whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TempOrder whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TempOrder whereOrderNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TempOrder wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TempOrder whereProductId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TempOrder whereQuantity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TempOrder whereTotalPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TempOrder whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TempOrder whereUserId($value)
  */
 	class TempOrder extends \Eloquent {}
 }
@@ -820,6 +851,8 @@ namespace App\Models{
  * @property-read int|null $permissions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read int|null $roles_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Ecommerce\SalesDeposit> $salesDeposit
+ * @property-read int|null $sales_deposit_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Ecommerce\SalesOrder> $salesOrder
  * @property-read int|null $sales_order_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, User> $tempOrder

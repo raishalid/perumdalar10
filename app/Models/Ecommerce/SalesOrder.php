@@ -15,6 +15,7 @@ class SalesOrder extends Model
         'user_id',
         'order_number',
         'order_at',
+        'total_transaction',
         'status',
         'remark',
         'notes',
@@ -24,7 +25,8 @@ class SalesOrder extends Model
 
     public function itemOrder()
         {
-            return $this->hasMany(ItemOrder::class, 'order_id');
+            return $this->hasMany(ItemOrder::class, 'order_number','order_number');
+            // maksudnya adalah bahwa Sales Order pada fungsi itemOrder memiliki field yang berelasi dan bukan dengan 'id' salah satu keduanya.
         }
         public function user()
         {
